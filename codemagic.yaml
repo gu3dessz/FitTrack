@@ -8,16 +8,17 @@ workflows:
     scripts:
       - name: Initialize Swift Package Manifest
         script: |
-          # Cria a estrutura moderna reconhecida pelo Xcode sem comandos antigos
           echo "// swift-tools-version: 6.0" > Package.swift
           echo "import PackageDescription" >> Package.swift
           echo "let package = Package(name: \"FitTrack\", platforms: [.iOS(.v17)], products: [.executable(name: \"FitTrack\", targets: [\"FitTrack\"])], targets: [.target(name: \"FitTrack\", path: \"FitTrack\")])" >> Package.swift
-      - name: Build Unsigned Application
+      - name: Build and Package Application
         script: |
-          # Compila o projeto diretamente usando o motor nativo do Mac
-          xcodebuild -buildwithpackage Package.swift -scheme FitTrack -sdk iphoneos -configuration Release CODE_SIGNING_ALLOWED=NO clean build
+          # Compila gerando um arquivo de arquivo nativo (.xcarchive)
+          xcodebuild -buildwithpackage Package.swift -scheme FitTrack -sdk iphoneos -configuration Release -archivePath build/FitTrack.xcarchive archive
+          
+          # Cria a estrutura correta do Payload que a AltStore exige
           mkdir -p build/ios/ipa/Payload
-          cp -r .build/artifacts/FitTrack.app build/ios/ipa/Payload/ 2>/dev/null || cp -r build/Release-iphoneos/FitTrack.app build/ios/ipa/Payload/
-          cd build/ios/ipa && zip -r FitTrack.ipa Payload/
+          cp -r build/FitTrack.xcarchive/Products/Applications/FitTrack.app build/ios/ipa/Payload/
+          cd build/ios/ipa && zip -y -r FitTrack.ipa Payload/
     artifacts:
       - build/ios/ipa/*.ipa
