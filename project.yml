@@ -12,6 +12,9 @@ targets:
     deploymentTarget: "17.0"
     sources:
       - App
-      - fitnessapp
+      - Data
+      - Models
+      - Services
+      - Views
     info:
-      path: fitnessapp/Info.plist
+      path: Info.plist
