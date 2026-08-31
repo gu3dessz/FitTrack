@@ -11,14 +11,21 @@ workflows:
           echo "// swift-tools-version: 6.0" > Package.swift
           echo "import PackageDescription" >> Package.swift
           echo "let package = Package(name: \"FitTrack\", platforms: [.iOS(.v17)], products: [.executable(name: \"FitTrack\", targets: [\"FitTrack\"])], targets: [.target(name: \"FitTrack\", path: \"FitTrack\")])" >> Package.swift
-      - name: Build and Package Application
+      - name: Build and Package App Bundle
         script: |
-          # Compila gerando um arquivo de arquivo nativo (.xcarchive)
-          xcodebuild -buildwithpackage Package.swift -scheme FitTrack -sdk iphoneos -configuration Release -archivePath build/FitTrack.xcarchive archive
+          # Compila o binário nativo para iPhone
+          swift build -c release --triple arm64-apple-ios17.0
           
-          # Cria a estrutura correta do Payload que a AltStore exige
-          mkdir -p build/ios/ipa/Payload
-          cp -r build/FitTrack.xcarchive/Products/Applications/FitTrack.app build/ios/ipa/Payload/
+          # Cria a estrutura exata do Payload que a AltStore exige
+          mkdir -p build/ios/ipa/Payload/FitTrack.app
+          
+          # Copia o executável compilado
+          cp .build/arm64-apple-ios17.0/release/FitTrack build/ios/ipa/Payload/FitTrack.app/
+          
+          # Copia o seu Info.plist real que está dentro da pasta fitnessapp
+          cp fitnessapp/Info.plist build/ios/ipa/Payload/FitTrack.app/ 2>/dev/null || find . -name "Info.plist" -exec cp {} build/ios/ipa/Payload/FitTrack.app/ \;
+          
+          # Compacta no formato correto .ipa
           cd build/ios/ipa && zip -y -r FitTrack.ipa Payload/
     artifacts:
       - build/ios/ipa/*.ipa

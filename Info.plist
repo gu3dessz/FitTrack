@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" ...>
+<plist version="1.0">
+<dict>
+    <!-- HealthKit permissions -->
+    <key>NSHealthShareUsageDescription</key>
+    <string>FitTrack lê dados de saúde (passos, calorias, 
+    frequência cardíaca) para acompanhar a tua atividade.</string>
+    
+    <key>NSHealthUpdateUsageDescription</key>
+    <string>FitTrack guarda os teus treinos no Apple Health.</string>
+    
+    <!-- Camera & Photos -->
+    <key>NSCameraUsageDescription</key>
+    <string>FitTrack usa a câmara para fotografar 
+    refeições e identificar alimentos com IA.</string>
+    
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>FitTrack acede à galeria para análise nutricional.</string>
+    
+    <!-- iCloud / CloudKit -->
+    <key>NSUbiquitousContainers</key>
+    <dict>
+        <key>iCloud.com.fittrack.app</key>
+        <dict>...</dict>
+    </dict>
+    
+    <!-- iOS 17 minimum -->
+    <key>MinimumOSVersion</key>
+    <string>17.0</string>
+</dict>
+</plist>
