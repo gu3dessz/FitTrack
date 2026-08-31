@@ -1,13 +1,17 @@
 name: FitTrack
 options:
   bundleIdPrefix: com.henrique
+settings:
+  base:
+    SDKROOT: iphoneos
+    CODE_SIGNING_ALLOWED: NO
 targets:
   FitTrack:
     type: application
     platform: iOS
     deploymentTarget: "17.0"
     sources:
-      - path: fitnessapp
-      - path: App
+      - App
+      - fitnessapp
     info:
       path: fitnessapp/Info.plist
