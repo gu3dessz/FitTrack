@@ -1,10 +1,6 @@
 name: FitTrack
 options:
   bundleIdPrefix: com.henrique
-settings:
-  base:
-    SDKROOT: iphoneos
-    CODE_SIGNING_ALLOWED: NO
 targets:
   FitTrack:
     type: application
@@ -18,3 +14,7 @@ targets:
       - Views
     info:
       path: Info.plist
+      properties:
+        UILaunchScreen: {}
+        CFBundleExecutable: FitTrack
+        CFBundleIdentifier: com.henrique.FitTrack

@@ -6,23 +6,26 @@ workflows:
     environment:
       xcode: latest
     scripts:
-      - name: Generate Xcode Project via XcodeGen
+      - name: Clean and Generate Project
         script: |
-          # Remove resquícios de compilações antigas que geram erros de bundle
-          rm -rf *.xcodeproj
-          rm -rf build
-          
-          # Instala e força a leitura do novo project.yml da raiz
+          rm -rf *.xcodeproj build
           brew install xcodegen
           xcodegen generate --spec project.yml
-      - name: Build Unsigned IPA
+      - name: Build and Force Archive Package
         script: |
-          # Compila o projeto nativo estruturado
-          xcodebuild -project FitTrack.xcodeproj -scheme FitTrack -sdk iphoneos -configuration Release CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO clean build
+          # Compila criando um arquivo nativo estruturado completo
+          xcodebuild -project FitTrack.xcodeproj -scheme FitTrack -sdk iphoneos -configuration Release -archivePath build/FitTrack.xcarchive archive CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO
           
-          # Monta a árvore exata que o iOS e a AltStore exigem
+          # Garante a árvore de subpastas Payload exigida pelo iOS
           mkdir -p build/ios/ipa/Payload
-          cp -r build/Release-iphoneos/FitTrack.app build/ios/ipa/Payload/
+          
+          # Extrai o bundle de aplicação real gerado pelo arquivo do Xcode
+          cp -r build/FitTrack.xcarchive/Products/Applications/FitTrack.app build/ios/ipa/Payload/
+          
+          # Injeta o Info.plist validado no coração do pacote
+          cp Info.plist build/ios/ipa/Payload/FitTrack.app/
+          
+          # Compacta preservando os links e formatos binários da Apple
           cd build/ios/ipa && zip -y -r FitTrack.ipa Payload/
     artifacts:
       - build/ios/ipa/*.ipa
