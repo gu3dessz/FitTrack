@@ -1,0 +1,22 @@
+workflows:
+  ios-swiftui-fittrack:
+    name: FitTrack iOS Build
+    max_build_duration: 30
+    instance_type: mac_mini_m1
+    environment:
+      xcode: latest
+    scripts:
+      - name: Generate Xcode Project via Swift Package Manager
+        script: |
+          # Cria um manifesto temporário para o Mac estruturar o projeto nativo
+          echo "import PackageDescription" > Package.swift
+          echo "let package = Package(name: \"FitTrack\", platforms: [.iOS(.v17)], products: [.executable(name: \"FitTrack\", targets: [\"FitTrack\"])], targets: [.target(name: \"FitTrack\", path: \"FitTrack\")])" >> Package.swift
+          swift package generate-xcodeproj
+      - name: Build Unsigned IPA
+        script: |
+          xcodebuild -project FitTrack.xcodeproj -scheme FitTrack -sdk iphoneos -configuration Release CODE_SIGNING_ALLOWED=NO SUBMISSION_METHOD=AD_HOC clean build
+          mkdir -p build/ios/ipa/Payload
+          cp -r build/Release-iphoneos/FitTrack.app build/ios/ipa/Payload/
+          cd build/ios/ipa && zip -r FitTrack.ipa Payload/
+    artifacts:
+      - build/ios/ipa/*.ipa
