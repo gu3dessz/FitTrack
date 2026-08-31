@@ -6,26 +6,19 @@ workflows:
     environment:
       xcode: latest
     scripts:
-      - name: Initialize Swift Package Manifest
+      - name: Generate Xcode Project via XcodeGen
         script: |
-          echo "// swift-tools-version: 6.0" > Package.swift
-          echo "import PackageDescription" >> Package.swift
-          echo "let package = Package(name: \"FitTrack\", platforms: [.iOS(.v17)], products: [.executable(name: \"FitTrack\", targets: [\"FitTrack\"])], targets: [.target(name: \"FitTrack\", path: \"FitTrack\")])" >> Package.swift
-      - name: Build and Package App Bundle
+          # Instala a ferramenta oficial para gerar projetos Apple nativos
+          brew install xcodegen
+          xcodegen generate
+      - name: Build Unsigned IPA
         script: |
-          # Compila o binário nativo para iPhone
-          swift build -c release --triple arm64-apple-ios17.0
+          # Compila o projeto simulando o Xcode real
+          xcodebuild -project FitTrack.xcodeproj -scheme FitTrack -sdk iphoneos -configuration Release CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO clean build
           
-          # Cria a estrutura exata do Payload que a AltStore exige
-          mkdir -p build/ios/ipa/Payload/FitTrack.app
-          
-          # Copia o executável compilado
-          cp .build/arm64-apple-ios17.0/release/FitTrack build/ios/ipa/Payload/FitTrack.app/
-          
-          # Copia o seu Info.plist real que está dentro da pasta fitnessapp
-          cp fitnessapp/Info.plist build/ios/ipa/Payload/FitTrack.app/ 2>/dev/null || find . -name "Info.plist" -exec cp {} build/ios/ipa/Payload/FitTrack.app/ \;
-          
-          # Compacta no formato correto .ipa
+          # Compacta a estrutura no formato .ipa aceite pela AltStore
+          mkdir -p build/ios/ipa/Payload
+          cp -r build/Release-iphoneos/FitTrack.app build/ios/ipa/Payload/
           cd build/ios/ipa && zip -y -r FitTrack.ipa Payload/
     artifacts:
       - build/ios/ipa/*.ipa
