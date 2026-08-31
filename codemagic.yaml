@@ -8,15 +8,19 @@ workflows:
     scripts:
       - name: Generate Xcode Project via XcodeGen
         script: |
-          # Garante a instalação limpa e força a geração do projeto Apple nativo
+          # Remove resquícios de compilações antigas que geram erros de bundle
+          rm -rf *.xcodeproj
+          rm -rf build
+          
+          # Instala e força a leitura do novo project.yml da raiz
           brew install xcodegen
           xcodegen generate --spec project.yml
       - name: Build Unsigned IPA
         script: |
-          # Compila o projeto simulando o Xcode real diretamente da pasta do workspace
+          # Compila o projeto nativo estruturado
           xcodebuild -project FitTrack.xcodeproj -scheme FitTrack -sdk iphoneos -configuration Release CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO clean build
           
-          # Garante a estrutura Payload correta exigida pela AltStore
+          # Monta a árvore exata que o iOS e a AltStore exigem
           mkdir -p build/ios/ipa/Payload
           cp -r build/Release-iphoneos/FitTrack.app build/ios/ipa/Payload/
           cd build/ios/ipa && zip -y -r FitTrack.ipa Payload/
